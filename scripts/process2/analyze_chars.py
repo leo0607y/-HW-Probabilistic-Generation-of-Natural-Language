@@ -39,7 +39,7 @@ def print_table(counter: Counter, total: int, top: int, title: str) -> None:
         if ch == "\n":
             label = "\\n"
         elif ch == " ":
-            label = "(空白)"
+            label = "space"
         print(f"{i}\t{label}\t{cnt}\t{cnt/total:.6f}")
 
 
@@ -51,7 +51,7 @@ def save_csv(counter: Counter, total: int, path: Path) -> None:
         for i, (ch, cnt) in enumerate(counter.most_common(), start=1):
             label = ch if ch != "\n" else "\\n"
             if ch == " ":
-                label = "(空白)"
+                label = "space"
             w.writerow([i, label, cnt, f"{cnt/total:.6f}"])
 
 
@@ -66,7 +66,7 @@ def try_plot(counter: Counter, path: Path, top: int, title: str) -> None:
         return
     items = counter.most_common(top)
     labels = [
-        ("\\n" if ch == "\n" else "(空白)" if ch == " " else ch) for ch, c in items
+        ("\\n" if ch == "\n" else "space" if ch == " " else ch) for ch, c in items
     ]
     values = [c for ch, c in items]
     plt.figure(figsize=(max(6, len(labels) * 0.3), 4))
@@ -86,11 +86,24 @@ def try_show_gui(csv_paths: list[Path]) -> None:
     """
     try:
         import tkinter as tk
+        import matplotlib
+
+        # GUI 表示では TkAgg を使うよう明示する（Qt を使わない）
+        matplotlib.use("TkAgg")
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
         import matplotlib.pyplot as plt
         import pandas as pd
     except Exception as e:
         print(f"GUI 表示を行えません: {e}")
+        print(
+            "必要なパッケージが足りない可能性があります。Linux (Debian/Ubuntu) なら次を試してください:"
+        )
+        print(
+            "  sudo apt update && sudo apt install -y python3-tk python3-matplotlib python3-pandas"
+        )
+        print(
+            "または pip によるインストール: python3 -m pip install --user matplotlib pandas"
+        )
         return
 
     # 読み込み
@@ -113,17 +126,17 @@ def try_show_gui(csv_paths: list[Path]) -> None:
     for ax, df, title in zip(axes, datas, titles):
         # 上位 30 を表示
         top_n = df.head(30)
-        labels = top_n['char'].astype(str).tolist()
-        counts = top_n['count'].tolist()
+        labels = top_n["char"].astype(str).tolist()
+        counts = top_n["count"].tolist()
         ax.bar(labels, counts)
         ax.set_title(title)
-        ax.tick_params(axis='x', rotation=45)
+        ax.tick_params(axis="x", rotation=45)
 
     fig.tight_layout()
 
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().pack(fill='both', expand=1)
+    canvas.get_tk_widget().pack(fill="both", expand=1)
 
     # ウィンドウを表示
     root.mainloop()
@@ -134,7 +147,16 @@ def main():
     p.add_argument("--src", default="examples/processed")
     p.add_argument("--top", type=int, default=50)
     p.add_argument("--plot", action="store_true")
-    p.add_argument("--gui", action="store_true", help="CSV を使ってポップアップ的にグラフを表示する（Tk が必要）")
+    p.add_argument(
+        "--gui",
+        action="store_true",
+        help="CSV を使ってポップアップ的にグラフを表示する（Tk が必要）",
+    )
+    p.add_argument(
+        "--outdir",
+        default="/home/leo0607y/work/numerical_analysis/Output/process2",
+        help="CSV 出力先ディレクトリ",
+    )
     args = p.parse_args()
 
     src = Path(args.src)
@@ -159,10 +181,12 @@ def main():
     # 大文字のみ / 小文字のみ / 大小区別なし の CSV を作成
     upper_cs = Counter({ch: cnt for ch, cnt in cs.items() if ch.isupper()})
     lower_cs = Counter({ch: cnt for ch, cnt in cs.items() if ch.islower()})
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
 
-    up_path = src / "char_freq_uppercase.csv"
-    low_path = src / "char_freq_lowercase.csv"
-    ci_path = src / "char_freq_case_insensitive.csv"
+    up_path = outdir / "char_freq_uppercase.csv"
+    low_path = outdir / "char_freq_lowercase.csv"
+    ci_path = outdir / "char_freq_case_insensitive.csv"
 
     save_csv(upper_cs, total, up_path)
     print(f"作成: {up_path}")
@@ -172,15 +196,16 @@ def main():
     print(f"作成: {ci_path}")
 
     # 既存の case-sensitive CSV も出力しておく
-    save_csv(cs, total, src / "char_freq_case_sensitive.csv")
+    save_csv(cs, total, outdir / "char_freq_case_sensitive.csv")
 
-    if args.plot:
+    # プロット画像は GUI 以外で必要な場合にのみ出力
+    if args.plot and not args.gui:
         try_plot(
-            cs, src / "char_freq_case_sensitive.png", args.top, "文字出現率（区別あり）"
+            cs, outdir / "char_freq_case_sensitive.png", args.top, "文字出現率（区別あり）"
         )
         try_plot(
             ci,
-            src / "char_freq_case_insensitive.png",
+            outdir / "char_freq_case_insensitive.png",
             args.top,
             "文字出現率（区別なし）",
         )
