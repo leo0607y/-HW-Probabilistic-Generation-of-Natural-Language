@@ -78,22 +78,42 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
     root = tk.Tk()
     root.title("二ッ組・三ッ組出現率")
 
-    # figure with 2 rows
+    # 画面サイズを取得してフィットするように figure サイズを決める
+    scr_w = root.winfo_screenwidth()
+    scr_h = root.winfo_screenheight()
+
+    # 表示データの件数に応じた幅を計算するが、画面幅の90%を超えないようにする
     n1 = len(bgp)
     n2 = len(tgp)
-    fig, axes = plt.subplots(
-        2, 1, figsize=(max(8, n1 * 0.15), 6 + max(0, int(n2 * 0.02)))
-    )
+    # 基本的なバー幅(ピクセル)を設定し、最大幅を画面の90%に制限
+    bar_px = 12
+    desired_width_px = max(800, int(max(n1, n2) * bar_px))
+    max_width_px = int(scr_w * 0.9)
+    width_px = min(desired_width_px, max_width_px)
 
-    axes[0].bar(bgp["ngram"].astype(str).tolist(), bgp["count"].tolist())
-    axes[0].set_title("Bigram (二ッ組)")
-    axes[0].tick_params(axis="x", rotation=90)
+    # 高さは大まかに設定（各プロットに300px）
+    height_px = min(int(scr_h * 0.8), 700)
 
-    axes[1].bar(tgp["ngram"].astype(str).tolist(), tgp["count"].tolist())
-    axes[1].set_title("Trigram (三ッ組)")
-    axes[1].tick_params(axis="x", rotation=90)
+    dpi = 100
+    fig_w = max(6, width_px / dpi)
+    fig_h = max(4, height_px / dpi)
 
-    fig.tight_layout()
+    fig, axes = plt.subplots(2, 1, figsize=(fig_w, fig_h), constrained_layout=True)
+
+    # ラベルとフォントサイズの調整
+    def plot_axis(ax, df, title):
+        labels = df["ngram"].astype(str).tolist()
+        counts = df["count"].tolist()
+        ax.bar(labels, counts)
+        ax.set_title(title)
+        # ラベルの数が多い場合は小さいフォントと90度回転
+        if len(labels) > 20:
+            ax.tick_params(axis="x", rotation=90, labelsize=8)
+        else:
+            ax.tick_params(axis="x", rotation=45, labelsize=10)
+
+    plot_axis(axes[0], bgp, "Bigram (二ッ組)")
+    plot_axis(axes[1], tgp, "Trigram (三ッ組)")
 
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
@@ -103,11 +123,9 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser()
-    p.add_argument("--src", default="examples/processed")
-    p.add_argument(
-        "--case-sensitive", action="store_true", help="大文字小文字を区別する"
-    )
+    p = argparse.ArgumentParser(description="二ッ組・三ッ組解析を行い CSV を出力します")
+    p.add_argument("--src", default="examples/processed", help="処理済みテキストのディレクトリ")
+    p.add_argument("--case-sensitive", action="store_true", help="大文字小文字を区別する")
     p.add_argument(
         "--top",
         type=int,
