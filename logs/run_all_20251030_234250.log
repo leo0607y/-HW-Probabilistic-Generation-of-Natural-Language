@@ -1,0 +1,124 @@
+run_all start: 2025-10-30T23:42:50.554300
+steps=[1, 2, 3, 4, 5, 6] gui_steps=[2, 3] top=50 overwrite=True seed=None
+
+--- STEP 1 ---
+CMD: /home/leo0607y/anaconda3/bin/python3 scripts/process1/process_unprocessed.py --overwrite
+Wrote: examples/processed/A_Study_In_Scarlet_processed.txt (bytes: 232472)
+Wrote: examples/processed/The_Hound_of_the_Baskervilles_processed.txt (bytes: 310082)
+Wrote: examples/processed/The_Sign_Of_The_Four_processed.txt (bytes: 224750)
+Wrote: examples/processed/The_Valley_Of_Fear_processed.txt (bytes: 304300)
+RETURNCODE: 0
+
+--- STEP 2 ---
+CMD: /home/leo0607y/anaconda3/bin/python3 scripts/process2/analyze_chars.py --top 50 --outdir Output/process2 --gui
+文字出現率（大文字小文字を区別）
+総文字数: 1071604
+順位	文字	出現数	割合
+1	space	198063	0.184829
+2	e	104744	0.097745
+3	t	74540	0.069559
+4	a	67413	0.062908
+5	o	65944	0.061538
+6	n	55537	0.051826
+7	h	55305	0.051610
+8	i	51962	0.048490
+9	s	50965	0.047560
+10	r	49028	0.045752
+11	d	36605	0.034159
+12	l	32940	0.030739
+13	u	25481	0.023778
+14	\n	23380	0.021818
+15	m	21624	0.020179
+16	w	20809	0.019419
+17	c	20144	0.018798
+18	f	17487	0.016319
+19	y	16646	0.015534
+20	g	15701	0.014652
+21	p	12561	0.011722
+22	b	11168	0.010422
+23	v	8438	0.007874
+24	k	6866	0.006407
+25	I	6480	0.006047
+26	T	2558	0.002387
+27	H	2367	0.002209
+28	M	1872	0.001747
+29	W	1729	0.001613
+30	S	1637	0.001528
+31	A	1353	0.001263
+32	B	1237	0.001154
+33	x	1200	0.001120
+34	Y	771	0.000719
+35	C	680	0.000635
+36	D	674	0.000629
+37	q	653	0.000609
+38	N	636	0.000594
+39	j	626	0.000584
+40	L	540	0.000504
+41	z	473	0.000441
+42	O	442	0.000412
+43	E	410	0.000383
+44	G	401	0.000374
+45	F	366	0.000342
+46	J	335	0.000313
+47	P	298	0.000278
+48	R	215	0.000201
+49	V	153	0.000143
+50	U	74	0.000069
+
+文字出現率（大文字小文字を区別しない）
+総文字数: 1071604
+順位	文字	出現数	割合
+1	space	198063	0.184829
+2	e	105154	0.098128
+3	t	77098	0.071946
+4	a	68766	0.064171
+5	o	66386	0.061950
+6	i	58442	0.054537
+7	h	57672	0.053818
+8	n	56173	0.052420
+9	s	52602	0.049087
+10	r	49243	0.045953
+11	d	37279	0.034788
+12	l	33480	0.031243
+13	u	25555	0.023847
+14	m	23496	0.021926
+15	\n	23380	0.021818
+16	w	22538	0.021032
+17	c	20824	0.019433
+18	f	17853	0.016660
+19	y	17417	0.016253
+20	g	16102	0.015026
+21	p	12859	0.012000
+22	b	12405	0.011576
+23	v	8591	0.008017
+24	k	6907	0.006445
+25	x	1204	0.001124
+26	j	961	0.000897
+27	q	679	0.000634
+28	z	475	0.000443
+作成: Output/process2/char_freq_uppercase.csv
+作成: Output/process2/char_freq_lowercase.csv
+作成: Output/process2/char_freq_case_insensitive.csv
+RETURNCODE: 0
+
+--- STEP 3 ---
+CMD: /home/leo0607y/anaconda3/bin/python3 scripts/process3/analyze_ngrams.py --top 50 --outdir Output/process3 --gui
+作成: Output/process3/bigram_freq.csv
+作成: Output/process3/trigram_freq.csv
+RETURNCODE: 0
+
+--- STEP 4 ---
+CMD: /home/leo0607y/anaconda3/bin/python3 scripts/process4/build_all_text.py
+作成しました: ALL_TEXT.txt (文字数=1071604)
+RETURNCODE: 0
+
+--- STEP 5 ---
+CMD: /home/leo0607y/anaconda3/bin/python3 scripts/process5/generate_ngrams.py --ngram 2 --length 200 --alltext ALL_TEXT.txt --out Output/run_all/step5_ngram2.txt
+生成結果を保存しました: Output/run_all/step5_ngram2.txt
+RETURNCODE: 0
+
+--- STEP 6 ---
+CMD: /home/leo0607y/anaconda3/bin/python3 scripts/process6/generate_markov.py --ngram 2 --length 200 --alltext ALL_TEXT.txt --out Output/run_all/step6_markov2.txt
+生成結果を保存しました: Output/run_all/step6_markov2.txt
+RETURNCODE: 0
+run_all finished: 2025-10-30T23:43:04.932414

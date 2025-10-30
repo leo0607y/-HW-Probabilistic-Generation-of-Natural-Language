@@ -125,13 +125,11 @@ def try_show_gui(csv_paths: list[Path]) -> None:
     root = tk.Tk()
     root.title("文字出現率（大/小/区別なし）")
 
-    # 4 つの CSV を受け取ることを想定しているので、列数に応じてプロットを作る
     n = len(datas)
     fig, axes = plt.subplots(1, n, figsize=(5 * n, 5))
     if n == 1:
         axes = [axes]
     for ax, df, title in zip(axes, datas, titles):
-        # 上位 30 を表示
         top_n = df.head(30)
         labels = top_n["char"].astype(str).tolist()
         counts = top_n["count"].tolist()
@@ -145,7 +143,16 @@ def try_show_gui(csv_paths: list[Path]) -> None:
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=1)
 
-    # ウィンドウを表示
+    # 「次に進め」ボタンを追加
+    def on_next():
+        root.quit()
+        root.destroy()
+
+    btn = tk.Button(
+        root, text="次に進め", command=on_next, font=("Arial", 14), bg="#e0e0ff"
+    )
+    btn.pack(side="bottom", fill="x", padx=10, pady=10)
+
     root.mainloop()
 
 

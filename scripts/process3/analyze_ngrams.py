@@ -81,20 +81,16 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
     root = tk.Tk()
     root.title("二ッ組・三ッ組出現率")
 
-    # 画面サイズを取得してフィットするように figure サイズを決める
     scr_w = root.winfo_screenwidth()
     scr_h = root.winfo_screenheight()
 
-    # 表示データの件数に応じた幅を計算するが、画面幅の90%を超えないようにする
     n1 = len(bgp)
     n2 = len(tgp)
-    # 基本的なバー幅(ピクセル)を設定し、最大幅を画面の90%に制限
     bar_px = 12
     desired_width_px = max(800, int(max(n1, n2) * bar_px))
     max_width_px = int(scr_w * 0.9)
     width_px = min(desired_width_px, max_width_px)
 
-    # 高さは大まかに設定（各プロットに300px）
     height_px = min(int(scr_h * 0.8), 700)
 
     dpi = 100
@@ -103,15 +99,12 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
 
     fig, axes = plt.subplots(2, 1, figsize=(fig_w, fig_h), constrained_layout=True)
 
-    # ラベルとフォントサイズの調整
     def plot_axis(ax, df, title):
         raw_labels = df["ngram"].astype(str).tolist()
-        # GUI 表示時のみスペースを可視化用の □ に置換する（CSV はそのまま）
         labels = [s.replace(" ", "□") for s in raw_labels]
         counts = df["count"].tolist()
         ax.bar(labels, counts)
         ax.set_title(title)
-        # ラベルの数が多い場合は小さいフォントと90度回転
         if len(labels) > 20:
             ax.tick_params(axis="x", rotation=90, labelsize=8)
         else:
@@ -124,41 +117,17 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=1)
 
-    # ウィンドウを閉じたときに matplotlib の図や Tk ウィジェットを明示的に破棄して
-    # プロセスが残らないようにするハンドラを登録する
-    def _on_close():
-        try:
-            # キャンバスウィジェットを破棄
-            canvas.get_tk_widget().pack_forget()
-        except Exception:
-            pass
-        try:
-            # matplotlib の図を閉じる
-            import matplotlib.pyplot as _plt
+    # 「次に進め」ボタンを追加
+    def on_next():
+        root.quit()
+        root.destroy()
 
-            _plt.close(fig)
-        except Exception:
-            pass
-        try:
-            root.quit()
-        except Exception:
-            pass
-        try:
-            root.destroy()
-        except Exception:
-            pass
-
-    root.protocol("WM_DELETE_WINDOW", _on_close)
+    btn = tk.Button(
+        root, text="次に進め", command=on_next, font=("Arial", 14), bg="#e0e0ff"
+    )
+    btn.pack(side="bottom", fill="x", padx=10, pady=10)
 
     root.mainloop()
-
-    # mainloop から戻ったら念のためすべての図を閉じる
-    try:
-        import matplotlib.pyplot as _plt
-
-        _plt.close("all")
-    except Exception:
-        pass
 
 
 def main() -> int:

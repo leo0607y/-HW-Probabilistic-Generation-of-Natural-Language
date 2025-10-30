@@ -6,24 +6,32 @@
 - ある程度の大量データが必須
 - 特定のフォルダに著作権切れの電子化されたテキストのファイルを収取する
 ## ▶言語の種類
+- 英語で特定の著作者の小説を使用することにする。
+- 日本語は2バイト文字となるので第一段階では実験は行わない
 
 ## 実験の手順
+
+※すべての手順（７を除く）を一括実行するには、以下を実行する。
+    ```bash
+    python3 scripts/run_all.py
+    ```
+
 1) 処理前の原文データがフォルダ(Unprocessed)に保存してあるので、〇〇.txtのファイルを開きアルファベット(26種)＆空白＆改行コード(¥n)はそのまま、それ以外の記号などを空白に置換し、処理後は別フォルダ（processed）に〇〇_processed.txtとして格納するコードの作成を行う。
     例：In the year 1878 I took　→In the year I took
 
-使い方の詳細は `docs/USAGE.md` を参照してください。
-
+    ```bash
+    python3 scripts/process1/process_unprocessed.py --overwrite
+    ```
 
 2) 半角文字のみからなるテキストファイルから文字）を1字ずつ読みこみ、ファイルに含まれる文字（アルファベット(26種)＆空白＆改行コード(¥n)の出現率を調べる。大文字と小文字の区別を行った場合と行わなかった場合の両方の結果を表示する。表またはグラフを用いる。
 
-    ```bash   
-    cd ~/work/numerical_analysis
-    
+    ```bash
     python3 scripts/process2/analyze_chars.py --gui
     ```
 
 3) 文字の二ッ組（連続する2文字）、三ッ組（連続する3文字）のすべての出現率を調べる。各上位５０位を表またはグラフを用いて示す。
-    ```bash   
+
+    ```bash
     python3 scripts/process3/analyze_ngrams.py --top 50 --gui
     ```
 
@@ -33,8 +41,9 @@
     2) 乱数の原理によりM以下の任意の数kを取得する
     3) ファイル中のk番目の文字を調べて出力する
     4) 以上を繰り返す
-    ```bash   
-   python3 scripts/process4/generate_chars.py --mode text --n 100 --no-newline
+
+    ```bash
+    python3 scripts/process4/generate_chars.py --mode text --n 100 --no-newline
     ```
 
 5) 手順４と同じ要領で二ッ組、三ッ組の出現率に応じてランダムに文字列を生成させる。以下は二ッ組の簡便法
@@ -44,4 +53,27 @@
     4) 再び乱数によりM以下の任意のk'を得る
     5) k'番目の文字より後で一番最初に出現するAを探す
     6) 見つかったらその次の文字を次のAとして出力し4)以下を繰り返す
+
+    ```bash
+    python3 scripts/process5/generate_ngrams.py --ngram 2 --length 200 --alltext ALL_TEXT.txt --out Output/run_all/step5_ngram2.txt
+    python3 scripts/process5/generate_ngrams.py --ngram 3 --length 200 --alltext ALL_TEXT.txt --out Output/run_all/step5_ngram3.txt
+    ```
+
+6) 探索を高速化するために dict で (n-1)-gram → following-chars リストを事前構築してサンプリングする方法（Markov 連鎖に近い）
+
+    ```bash
+    python3 scripts/process6/generate_markov.py --ngram 2 --length 200 --alltext ALL_TEXT.txt --out Output/run_all/step6_markov2.txt
+    python3 scripts/process6/generate_markov.py --ngram 3 --length 200 --alltext ALL_TEXT.txt --out Output/run_all/step6_markov3.txt
+    ```
+
+7) 生成される文章を作者に近づけるために単語区切りでの頻出率を計算し、手順４と手順５を実行して文章を生成させる
+
+    ```bash
+    python3 scripts/process7/extract_word_ngrams.py --alltext ALL_TEXT.txt --outdir Output/process7
+    python3 scripts/process7/generate_by_word_ngrams.py --csv Output/process7/word_freq.csv --n 100 --lines --out Output/process7/gen_words.txt
+    python3 scripts/process7/generate_by_word_ngrams.py --csv Output/process7/bigram_freq.csv --n 100 --out Output/process7/gen_bigrams.txt
+    python3 scripts/process7/generate_by_word_ngrams.py --csv Output/process7/trigram_freq.csv --n 100 --out Output/process7/gen_trigrams.txt
+    ```
+
+
 

@@ -1,0 +1,9 @@
+run_all start: 2025-10-30T23:41:35.055701
+steps=[1, 2, 3, 4, 5, 6] gui_steps=[2, 3] top=50 overwrite=True seed=None
+
+--- STEP 1 ---
+CMD: /home/leo0607y/anaconda3/bin/python3 scripts/process1/process_unprocessed.py --overwrite
+/home/leo0607y/anaconda3/bin/python3: can't open file '/home/leo0607y/work/numerical_analysis/scripts/scripts/process1/process_unprocessed.py': [Errno 2] No such file or directory
+RETURNCODE: 2
+STEP 1 failed (rc=2)
+Aborting due to failure
