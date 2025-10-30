@@ -55,10 +55,9 @@ def generate_by_text(src_dir: Path, n: int) -> List[str]:
 
 def render_list(lst: List[str], one_per_line: bool) -> str:
     if one_per_line:
-        return "\n".join(repr(c) for c in lst)
+        return "\n".join(c for c in lst)
     else:
-        # join as a continuous string, showing newlines as literal '\\n' in repr
-        return "".join(c if c != "\n" else "\n" for c in lst)
+        return "".join(lst)
 
 
 def main() -> int:
@@ -81,11 +80,21 @@ def main() -> int:
         default="examples/processed",
         help="処理済みテキストのディレクトリ (text モード) ",
     )
+    p.add_argument(
+        "--alltext",
+        default="ALL_TEXT.txt",
+        help="ALL_TEXT.txt のパス (text モードで優先的に使用)",
+    )
     p.add_argument("--n", type=int, default=100, help="生成する文字数")
     p.add_argument(
         "--out", default=None, help="生成結果の出力先ファイル (省略で標準出力)"
     )
     p.add_argument("--lines", action="store_true", help="1 行に 1 文字ずつ出力する")
+    p.add_argument(
+        "--no-newline",
+        action="store_true",
+        help="インライン出力時に改行文字を削除して横並びにする（--lines と併用しないこと）",
+    )
     args = p.parse_args()
 
     if args.mode == "dist":
@@ -96,19 +105,50 @@ def main() -> int:
         chars, counts = read_distribution_from_csv(csvp)
         out = generate_by_distribution(chars, counts, args.n)
     else:
+        allp = Path(args.alltext)
         src = Path(args.src)
-        if not src.is_dir():
-            print(f"処理済みディレクトリが見つかりません: {src}")
+        # if ALL_TEXT.txt does not exist, build it by concatenating processed files
+        if not allp.exists():
+            if not src.is_dir():
+                print(f"処理済みディレクトリが見つかりません: {src}")
+                return 2
+            parts: list[str] = []
+            for p in sorted(src.glob("*_processed.txt")):
+                parts.append(p.read_text(encoding="utf-8", errors="replace"))
+            full = "".join(parts)
+            allp.write_text(full, encoding="utf-8")
+            print(f"作成: {allp} (結合済みテキスト) 文字数={len(full)}")
+
+        alltxt = allp.read_text(encoding="utf-8", errors="replace")
+        if not alltxt:
+            print(f"ALL_TEXT.txt が空です: {allp}")
             return 2
-        out = generate_by_text(src, args.n)
+        M = len(alltxt)
+        out_list: list[str] = []
+        for _ in range(args.n):
+            k = random.randint(1, M)
+            out_list.append(alltxt[k - 1])
+        out = out_list
 
-    text = render_list(out, args.lines)
-
-    if args.out:
-        Path(args.out).write_text(text, encoding="utf-8")
-        print(f"生成結果を保存しました: {args.out}")
+    # 出力: 引用符や repr を使わずそのまま表示する
+    if args.lines:
+        # 1 行に 1 文字ずつ（改行文字は空行となる）
+        if args.out:
+            Path(args.out).write_text("\n".join(out), encoding="utf-8")
+            print(f"生成結果を保存しました: {args.out}")
+        else:
+            for c in out:
+                print(c, end="\n")
     else:
-        print(text)
+        joined = "".join(out)
+        # --no-newline が指定されていれば改行文字を削除して横並びにする
+        if getattr(args, "no_newline", False):
+            joined = joined.replace("\n", "")
+        if args.out:
+            Path(args.out).write_text(joined, encoding="utf-8")
+            print(f"生成結果を保存しました: {args.out}")
+        else:
+            print(joined)
 
     return 0
 

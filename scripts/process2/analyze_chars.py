@@ -205,7 +205,10 @@ def main():
     # プロット画像は GUI 以外で必要な場合にのみ出力
     if args.plot and not args.gui:
         try_plot(
-            cs, outdir / "char_freq_case_sensitive.png", args.top, "文字出現率（区別あり）"
+            cs,
+            outdir / "char_freq_case_sensitive.png",
+            args.top,
+            "文字出現率（区別あり）",
         )
         try_plot(
             ci,

@@ -160,8 +160,12 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
 
 def main() -> int:
     p = argparse.ArgumentParser(description="二ッ組・三ッ組解析を行い CSV を出力します")
-    p.add_argument("--src", default="examples/processed", help="処理済みテキストのディレクトリ")
-    p.add_argument("--case-sensitive", action="store_true", help="大文字小文字を区別する")
+    p.add_argument(
+        "--src", default="examples/processed", help="処理済みテキストのディレクトリ"
+    )
+    p.add_argument(
+        "--case-sensitive", action="store_true", help="大文字小文字を区別する"
+    )
     p.add_argument(
         "--top",
         type=int,
