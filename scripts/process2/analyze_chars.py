@@ -122,7 +122,11 @@ def try_show_gui(csv_paths: list[Path]) -> None:
     root = tk.Tk()
     root.title("文字出現率（大/小/区別なし）")
 
-    fig, axes = plt.subplots(1, 3, figsize=(14, 5))
+    # 4 つの CSV を受け取ることを想定しているので、列数に応じてプロットを作る
+    n = len(datas)
+    fig, axes = plt.subplots(1, n, figsize=(5 * n, 5))
+    if n == 1:
+        axes = [axes]
     for ax, df, title in zip(axes, datas, titles):
         # 上位 30 を表示
         top_n = df.head(30)
