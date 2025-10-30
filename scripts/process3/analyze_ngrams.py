@@ -102,7 +102,9 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
 
     # ラベルとフォントサイズの調整
     def plot_axis(ax, df, title):
-        labels = df["ngram"].astype(str).tolist()
+        raw_labels = df["ngram"].astype(str).tolist()
+        # GUI 表示時のみスペースを可視化用の □ に置換する（CSV はそのまま）
+        labels = [s.replace(" ", "□") for s in raw_labels]
         counts = df["count"].tolist()
         ax.bar(labels, counts)
         ax.set_title(title)
@@ -112,14 +114,48 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
         else:
             ax.tick_params(axis="x", rotation=45, labelsize=10)
 
-    plot_axis(axes[0], bgp, "Bigram (二ッ組)")
-    plot_axis(axes[1], tgp, "Trigram (三ッ組)")
+    plot_axis(axes[0], bgp, "Bigram")
+    plot_axis(axes[1], tgp, "Trigram")
 
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().pack(fill="both", expand=1)
 
+    # ウィンドウを閉じたときに matplotlib の図や Tk ウィジェットを明示的に破棄して
+    # プロセスが残らないようにするハンドラを登録する
+    def _on_close():
+        try:
+            # キャンバスウィジェットを破棄
+            canvas.get_tk_widget().pack_forget()
+        except Exception:
+            pass
+        try:
+            # matplotlib の図を閉じる
+            import matplotlib.pyplot as _plt
+
+            _plt.close(fig)
+        except Exception:
+            pass
+        try:
+            root.quit()
+        except Exception:
+            pass
+        try:
+            root.destroy()
+        except Exception:
+            pass
+
+    root.protocol("WM_DELETE_WINDOW", _on_close)
+
     root.mainloop()
+
+    # mainloop から戻ったら念のためすべての図を閉じる
+    try:
+        import matplotlib.pyplot as _plt
+
+        _plt.close("all")
+    except Exception:
+        pass
 
 
 def main() -> int:
