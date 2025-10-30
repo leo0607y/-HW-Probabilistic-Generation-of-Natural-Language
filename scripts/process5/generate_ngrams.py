@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2025 Reo Yamaguchi
+# All rights reserved.
+# Contact: reo.yamaguchi0607@gmail.com
 from __future__ import annotations
 import argparse
 import random
@@ -57,29 +60,43 @@ def generate_by_ngram_alltext(alltext: str, ngram: int, length: int) -> str:
             next_pos = found + (ngram - 1)
             next_char = alltext[next_pos]
             out_chars.append(next_char)
-            A = (A + next_char)[- (ngram - 1) :]
+            A = (A + next_char)[-(ngram - 1) :]
         else:
             # fallback: pick random position with room and append next char
             fk = random.randint(0, M - ngram)
             next_char = alltext[fk + ngram - 1]
             out_chars.append(next_char)
-            A = (A + next_char)[- (ngram - 1) :]
+            A = (A + next_char)[-(ngram - 1) :]
 
     return "".join(out_chars[:length])
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="手順5: 二ッ組/三ッ組出現率に従った簡便なランダム文字列生成")
-    p.add_argument("--ngram", type=int, choices=[2, 3], default=2, help="2=bigram, 3=trigram")
-    p.add_argument("--length", type=int, default=100, help="生成する文字列の長さ（文字数）")
-    p.add_argument("--alltext", default="ALL_TEXT.txt", help="結合済みテキスト ALL_TEXT.txt のパス")
+    p = argparse.ArgumentParser(
+        description="手順5: 二ッ組/三ッ組出現率に従った簡便なランダム文字列生成"
+    )
+    p.add_argument(
+        "--ngram", type=int, choices=[2, 3], default=2, help="2=bigram, 3=trigram"
+    )
+    p.add_argument(
+        "--length", type=int, default=100, help="生成する文字列の長さ（文字数）"
+    )
+    p.add_argument(
+        "--alltext", default="ALL_TEXT.txt", help="結合済みテキスト ALL_TEXT.txt のパス"
+    )
     p.add_argument("--out", default=None, help="出力先ファイル（省略時は標準出力）")
-    p.add_argument("--no-newline", action="store_true", help="出力時に改行文字を削除して横並びにする")
+    p.add_argument(
+        "--no-newline",
+        action="store_true",
+        help="出力時に改行文字を削除して横並びにする",
+    )
     args = p.parse_args()
 
     allp = Path(args.alltext)
     if not allp.exists():
-        print(f"ALL_TEXT.txt が見つかりません: {allp} — 先に scripts/process4/build_all_text.py で作成してください")
+        print(
+            f"ALL_TEXT.txt が見つかりません: {allp} — 先に scripts/process4/build_all_text.py で作成してください"
+        )
         return 2
 
     alltxt = allp.read_text(encoding="utf-8", errors="replace")

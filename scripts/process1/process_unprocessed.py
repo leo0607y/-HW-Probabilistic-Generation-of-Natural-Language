@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (c) 2025 Reo Yamaguchi
+# All rights reserved.
+# Contact: reo.yamaguchi0607@gmail.com
 from __future__ import annotations
 import argparse
 import os

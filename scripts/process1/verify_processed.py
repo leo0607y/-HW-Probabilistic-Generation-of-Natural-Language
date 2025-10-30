@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 """
+# Copyright (c) 2025 Reo Yamaguchi
+# All rights reserved.
+# Contact: reo.yamaguchi0607@gmail.com
+"""
+"""
 processed 出力の検証スクリプト (process1 フォルダ版)
 """
 from __future__ import annotations
