@@ -1,0 +1,24 @@
+# Ignore user-provided unprocessed corpora (may contain copyrighted texts)
+Unprocessed/
+examples/Unprocessed/
+
+# Python cache and virtualenv
+__pycache__/
+*.py[cod]
+venv/
+env/
+
+*.pdf
+
+# Byte-compiled / optimized / DLL files
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+thumbs.db
+
+# Processed examples (do not commit derived/processed texts)
+examples/processed/
