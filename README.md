@@ -14,8 +14,9 @@
     例：In the year 1878 I took　→In the year I took
 
 2) 半角文字のみからなるテキストファイルから文字）を1字ずつ読みこみ、ファイルに含まれる文字（アルファベット(26種)＆空白＆改行コード(¥n)の出現率を調べる。大文字と小文字の区別を行った場合と行わなかった場合の両方の結果を表示する。表またはグラフを用いる。
-        cd ~/work/numerical_analysis
-    ```bash
+    ```bash   
+    cd ~/work/numerical_analysis
+    
     python3 scripts/process2/analyze_chars.py --gui
     ```
 
