@@ -43,15 +43,22 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
     try:
         import tkinter as tk
         import matplotlib
+
         matplotlib.use("TkAgg")
         from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
         import matplotlib.pyplot as plt
         import pandas as pd
     except Exception as e:
         print(f"GUI 表示を行えません: {e}")
-        print("必要なパッケージが足りない可能性があります。Linux (Debian/Ubuntu) なら次を試してください:")
-        print("  sudo apt update && sudo apt install -y python3-tk python3-matplotlib python3-pandas")
-        print("または pip によるインストール: python3 -m pip install --user matplotlib pandas")
+        print(
+            "必要なパッケージが足りない可能性があります。Linux (Debian/Ubuntu) なら次を試してください:"
+        )
+        print(
+            "  sudo apt update && sudo apt install -y python3-tk python3-matplotlib python3-pandas"
+        )
+        print(
+            "または pip によるインストール: python3 -m pip install --user matplotlib pandas"
+        )
         return
 
     try:
@@ -74,21 +81,23 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
     # figure with 2 rows
     n1 = len(bgp)
     n2 = len(tgp)
-    fig, axes = plt.subplots(2, 1, figsize=(max(8, n1 * 0.15), 6 + max(0, int(n2 * 0.02))))
+    fig, axes = plt.subplots(
+        2, 1, figsize=(max(8, n1 * 0.15), 6 + max(0, int(n2 * 0.02)))
+    )
 
-    axes[0].bar(bgp['ngram'].astype(str).tolist(), bgp['count'].tolist())
-    axes[0].set_title('Bigram (二ッ組)')
-    axes[0].tick_params(axis='x', rotation=90)
+    axes[0].bar(bgp["ngram"].astype(str).tolist(), bgp["count"].tolist())
+    axes[0].set_title("Bigram (二ッ組)")
+    axes[0].tick_params(axis="x", rotation=90)
 
-    axes[1].bar(tgp['ngram'].astype(str).tolist(), tgp['count'].tolist())
-    axes[1].set_title('Trigram (三ッ組)')
-    axes[1].tick_params(axis='x', rotation=90)
+    axes[1].bar(tgp["ngram"].astype(str).tolist(), tgp["count"].tolist())
+    axes[1].set_title("Trigram (三ッ組)")
+    axes[1].tick_params(axis="x", rotation=90)
 
     fig.tight_layout()
 
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
-    canvas.get_tk_widget().pack(fill='both', expand=1)
+    canvas.get_tk_widget().pack(fill="both", expand=1)
 
     root.mainloop()
 
@@ -96,8 +105,15 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--src", default="examples/processed")
-    p.add_argument("--case-sensitive", action="store_true", help="大文字小文字を区別する")
-    p.add_argument("--top", type=int, default=None, help="GUI 表示または top CSV の上位 N（省略で全て）")
+    p.add_argument(
+        "--case-sensitive", action="store_true", help="大文字小文字を区別する"
+    )
+    p.add_argument(
+        "--top",
+        type=int,
+        default=None,
+        help="GUI 表示または top CSV の上位 N（省略で全て）",
+    )
     p.add_argument(
         "--outdir",
         default="/home/leo0607y/work/numerical_analysis/Output/process3",
@@ -144,8 +160,16 @@ def main() -> int:
 
     # save top-N CSVs if top specified
     if args.top:
-        save_ngram_csv(Counter(dict(cb.most_common(args.top))), total_b, outdir / f"bigram_freq_top{args.top}.csv")
-        save_ngram_csv(Counter(dict(ct.most_common(args.top))), total_t, outdir / f"trigram_freq_top{args.top}.csv")
+        save_ngram_csv(
+            Counter(dict(cb.most_common(args.top))),
+            total_b,
+            outdir / f"bigram_freq_top{args.top}.csv",
+        )
+        save_ngram_csv(
+            Counter(dict(ct.most_common(args.top))),
+            total_t,
+            outdir / f"trigram_freq_top{args.top}.csv",
+        )
 
     if args.gui:
         try_show_gui(bg_csv, tg_csv, args.top)
