@@ -75,5 +75,6 @@
     python3 scripts/process7/generate_by_word_ngrams.py --csv Output/process7/trigram_freq.csv --n 100 --out Output/process7/gen_trigrams.txt
     ```
 
-
-
+Copyright (c) 2025 Reo Yamaguchi
+All rights reserved.
+Contact: reo.yamaguchi0607@gmail.com
