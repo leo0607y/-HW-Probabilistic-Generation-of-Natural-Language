@@ -122,7 +122,14 @@ def try_show_gui(csv_paths: list[Path]) -> None:
         titles.append(p.stem)
 
     # Tk ウィンドウ
-    root = tk.Tk()
+    try:
+        root = tk.Tk()
+    except Exception as e:
+        # たとえば DISPLAY が設定されていない、または X サーバと通信できない場合
+        # Tk の初期化でエラーが出ることがあるため、ここで拾って GUI を諦める。
+        print(f"GUI を開始できません (Tk エラー): {e}")
+        print("GUI を使用せずに続行します。--gui を外すか、X サーバ/環境を確認してください。")
+        return
     root.title("文字出現率（大/小/区別なし）")
 
     n = len(datas)
@@ -152,6 +159,10 @@ def try_show_gui(csv_paths: list[Path]) -> None:
         root, text="次に進め", command=on_next, font=("Arial", 14), bg="#e0e0ff"
     )
     btn.pack(side="bottom", fill="x", padx=10, pady=10)
+
+    # ウィンドウの「×」ボタン（WM_DELETE_WINDOW）が押されたときにも on_next を呼ぶようにする。
+    # これがないとウィンドウを閉じたときに mainloop が終了しないケースがあるため、明示的にハンドラを設定する。
+    root.protocol("WM_DELETE_WINDOW", on_next)
 
     root.mainloop()
 

@@ -78,7 +78,12 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
         bgp = bg
         tgp = tg
 
-    root = tk.Tk()
+    try:
+        root = tk.Tk()
+    except Exception as e:
+        print(f"GUI を開始できません (Tk エラー): {e}")
+        print("GUI を使用せずに続行します。--gui を外すか、X サーバ/環境を確認してください。")
+        return
     root.title("二ッ組・三ッ組出現率")
 
     scr_w = root.winfo_screenwidth()
@@ -126,6 +131,9 @@ def try_show_gui(bigram_csv: Path, trigram_csv: Path, top: int | None) -> None:
         root, text="次に進め", command=on_next, font=("Arial", 14), bg="#e0e0ff"
     )
     btn.pack(side="bottom", fill="x", padx=10, pady=10)
+
+    # WM の「×」ボタンで閉じられたときにも on_next を呼ぶ
+    root.protocol("WM_DELETE_WINDOW", on_next)
 
     root.mainloop()
 
